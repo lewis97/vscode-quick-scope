@@ -11,6 +11,38 @@
   "keywords": ["vim", "quick-scope", "quick", "scope", "jump"],
   "activationEvents": ["*"],
   "main": "./out/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-quick-scope.showHighlights",
+        "title": "Quick Scope: Show jump highlights"
+      }
+    ],
+    "configurationDefaults": {
+      "vim.normalModeKeyBindingsNonRecursive": [
+        {
+          "before": ["f"],
+          "after": ["f"],
+          "commands": ["vscode-quick-scope.showHighlights"]
+        },
+        {
+          "before": ["F"],
+          "after": ["F"],
+          "commands": ["vscode-quick-scope.showHighlights"]
+        },
+        {
+          "before": ["t"],
+          "after": ["t"],
+          "commands": ["vscode-quick-scope.showHighlights"]
+        },
+        {
+          "before": ["T"],
+          "after": ["T"],
+          "commands": ["vscode-quick-scope.showHighlights"]
+        }
+      ]
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",

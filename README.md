@@ -1,6 +1,6 @@
 # vscode-quick-scope
 
-*quick-scope* highlights a unique character for each word that you can use to target with <kbd>f</kbd>, <kbd>F</kbd>, and similar Vim commands.
+*quick-scope* briefly highlights unique characters on the current line while a Vim <kbd>f</kbd>, <kbd>F</kbd>, <kbd>t</kbd>, or <kbd>T</kbd> motion is waiting for its target character.
 
 ## Features
 
@@ -8,7 +8,7 @@ Based on https://github.com/unblevable/quick-scope for Vim. See the readme there
 
 ## Requirements
 
-This extension only makes sense if you're using Vim keybindings
+This extension integrates with the VSCodeVim extension. Install VSCodeVim to use the `f`, `F`, `t`, and `T` motions with jump highlights.
 
 ## Extension Settings
 

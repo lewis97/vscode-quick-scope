@@ -14,34 +14,56 @@ const secondaryDecorationType = vscode.window.createTextEditorDecorationType({
 
 export function activate(context: vscode.ExtensionContext) {
   let activeEditor = vscode.window.activeTextEditor;
-  if (activeEditor) {
-    triggerUpdateDecorations();
-  }
+  let timeout: any;
+
+  const clearHighlights = (editor: vscode.TextEditor) => {
+    editor.setDecorations(primaryDecorationType, []);
+    editor.setDecorations(secondaryDecorationType, []);
+  };
+
+  const hideHighlights = () => {
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    if (activeEditor) {
+      clearHighlights(activeEditor);
+    }
+  };
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-quick-scope.showHighlights", () => {
+      if (!activeEditor) {
+        return;
+      }
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      updateDecorations();
+      // A failed find motion does not change the selection, so always clear
+      // the highlights after Vim's key sequence timeout as a fallback.
+      timeout = setTimeout(hideHighlights, 1500);
+    })
+  );
 
   vscode.window.onDidChangeActiveTextEditor(
     editor => {
+      hideHighlights();
       activeEditor = editor;
-      if (editor) {
-        triggerUpdateDecorations();
-      }
     },
     null,
     context.subscriptions
   );
 
   vscode.window.onDidChangeTextEditorSelection(
-    triggerUpdateDecorations,
+    event => {
+      if (event.textEditor === activeEditor) {
+        hideHighlights();
+      }
+    },
     null,
     context.subscriptions
   );
-
-  var timeout = null;
-  function triggerUpdateDecorations() {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    timeout = setTimeout(updateDecorations, 10);
-  }
 
   function updateDecorations() {
     if (!activeEditor) {

@@ -34,13 +34,13 @@ function highlightWord(
     occurrences[char] = (occurrences[char] || 0) + 1;
   }
 
-  if (primary) {
+  if (primary !== null) {
     return {
       position: primary,
       type: "primary"
     };
   }
-  if (secondary) {
+  if (secondary !== null) {
     return {
       position: secondary,
       type: "secondary"
@@ -53,6 +53,9 @@ export default function getHighlights(
   direction: "forward" | "reverse"
 ): { position: number; type: "primary" | "secondary" }[] {
   const words = extractWords(text);
+  if (words.length === 0) {
+    return [];
+  }
   const firstWord = words.shift().text;
   // Whether a character is already being used
   const occurrences = {};
