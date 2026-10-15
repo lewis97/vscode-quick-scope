@@ -120,16 +120,34 @@ export function activate(context: vscode.ExtensionContext) {
       .split("")
       .reverse()
       .join("");
-    const beforeHighlights = getHighlights(beforeTextReversed, "reverse").map(
-      h => ({ ...h, position: cursorColumn - h.position - 1 })
-    );
+    const beforeContinuesCurrentWord =
+      cursorColumn > 0 &&
+      /\w/.test(line.charAt(cursorColumn)) &&
+      /\w/.test(line.charAt(cursorColumn - 1));
+    const beforeHighlights = getHighlights(
+      beforeTextReversed,
+      "reverse",
+      beforeContinuesCurrentWord
+    ).map(h => ({ ...h, position: cursorColumn - h.position - 1 }));
 
     const afterText = line.slice(cursorPosition.character + 1);
-    const afterHighlights = getHighlights(afterText, "forward").map(h => ({
+    const afterContinuesCurrentWord =
+      cursorColumn + 1 < line.length &&
+      /\w/.test(line.charAt(cursorColumn)) &&
+      /\w/.test(line.charAt(cursorColumn + 1));
+    const afterHighlights = getHighlights(
+      afterText,
+      "forward",
+      afterContinuesCurrentWord
+    ).map(h => ({
       ...h,
       position: cursorColumn + h.position + 1
     }));
-    const allHighlights = [...beforeHighlights, ...afterHighlights];
+    // Secondary matches may already occur earlier in the search direction,
+    // so Vim's f/F motion would stop before reaching them.
+    const allHighlights = [...beforeHighlights, ...afterHighlights].filter(
+      highlight => highlight.type === "primary"
+    );
     const targetPositions = {};
     allHighlights.forEach(highlight => {
       targetPositions[highlight.position] = true;

@@ -50,17 +50,22 @@ function highlightWord(
 
 export default function getHighlights(
   text: string,
-  direction: "forward" | "reverse"
+  direction: "forward" | "reverse",
+  skipFirstWord: boolean = true
 ): { position: number; type: "primary" | "secondary" }[] {
   const words = extractWords(text);
   if (words.length === 0) {
     return [];
   }
-  const firstWord = words.shift().text;
   // Whether a character is already being used
   const occurrences = {};
-    
-  firstWord.split('').forEach(char => occurrences[char] = (occurrences[char] || 0) + 1);
+
+  if (skipFirstWord) {
+    const firstWord = words.shift().text;
+    firstWord.split("").forEach(char => {
+      occurrences[char] = (occurrences[char] || 0) + 1;
+    });
+  }
 
   // Primary highlights
   const highlights = words.map(word =>
