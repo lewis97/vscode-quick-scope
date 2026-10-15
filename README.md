@@ -1,6 +1,6 @@
 # vscode-quick-scope
 
-*quick-scope* briefly highlights unique characters on the current line while a Vim <kbd>f</kbd>, <kbd>F</kbd>, <kbd>t</kbd>, or <kbd>T</kbd> motion is waiting for its target character.
+*quick-scope* briefly highlights unique characters on the current line while a Vim <kbd>f</kbd>, <kbd>F</kbd>, <kbd>t</kbd>, or <kbd>T</kbd> motion is waiting for its target character. This also works with operators such as `cf` and `dt`, and in visual mode.
 
 ## Features
 

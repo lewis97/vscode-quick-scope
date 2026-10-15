@@ -76,6 +76,60 @@
           "after": ["<Esc>"],
           "commands": ["vscode-quick-scope.hideHighlights"]
         }
+      ],
+      "vim.operatorPendingModeKeyBindingsNonRecursive": [
+        {
+          "before": ["f"],
+          "after": ["f"],
+          "commands": ["vscode-quick-scope.showForwardHighlights"]
+        },
+        {
+          "before": ["F"],
+          "after": ["F"],
+          "commands": ["vscode-quick-scope.showReverseHighlights"]
+        },
+        {
+          "before": ["t"],
+          "after": ["t"],
+          "commands": ["vscode-quick-scope.showForwardHighlights"]
+        },
+        {
+          "before": ["T"],
+          "after": ["T"],
+          "commands": ["vscode-quick-scope.showReverseHighlights"]
+        },
+        {
+          "before": ["<Esc>"],
+          "after": ["<Esc>"],
+          "commands": ["vscode-quick-scope.hideHighlights"]
+        }
+      ],
+      "vim.visualModeKeyBindingsNonRecursive": [
+        {
+          "before": ["f"],
+          "after": ["f"],
+          "commands": ["vscode-quick-scope.showForwardHighlights"]
+        },
+        {
+          "before": ["F"],
+          "after": ["F"],
+          "commands": ["vscode-quick-scope.showReverseHighlights"]
+        },
+        {
+          "before": ["t"],
+          "after": ["t"],
+          "commands": ["vscode-quick-scope.showForwardHighlights"]
+        },
+        {
+          "before": ["T"],
+          "after": ["T"],
+          "commands": ["vscode-quick-scope.showReverseHighlights"]
+        },
+        {
+          "before": ["<Esc>"],
+          "after": ["<Esc>"],
+          "commands": ["vscode-quick-scope.hideHighlights"]
+        }
       ]
     }
   },
