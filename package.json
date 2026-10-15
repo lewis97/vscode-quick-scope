@@ -37,8 +37,12 @@
     },
     "commands": [
       {
-        "command": "vscode-quick-scope.showHighlights",
-        "title": "Quick Scope: Show jump highlights"
+        "command": "vscode-quick-scope.showForwardHighlights",
+        "title": "Quick Scope: Show forward jump highlights"
+      },
+      {
+        "command": "vscode-quick-scope.showReverseHighlights",
+        "title": "Quick Scope: Show reverse jump highlights"
       },
       {
         "command": "vscode-quick-scope.hideHighlights",
@@ -50,22 +54,22 @@
         {
           "before": ["f"],
           "after": ["f"],
-          "commands": ["vscode-quick-scope.showHighlights"]
+          "commands": ["vscode-quick-scope.showForwardHighlights"]
         },
         {
           "before": ["F"],
           "after": ["F"],
-          "commands": ["vscode-quick-scope.showHighlights"]
+          "commands": ["vscode-quick-scope.showReverseHighlights"]
         },
         {
           "before": ["t"],
           "after": ["t"],
-          "commands": ["vscode-quick-scope.showHighlights"]
+          "commands": ["vscode-quick-scope.showForwardHighlights"]
         },
         {
           "before": ["T"],
           "after": ["T"],
-          "commands": ["vscode-quick-scope.showHighlights"]
+          "commands": ["vscode-quick-scope.showReverseHighlights"]
         },
         {
           "before": ["<Esc>"],

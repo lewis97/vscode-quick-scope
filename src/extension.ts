@@ -5,6 +5,7 @@ import getHighlights from "./matcher";
 export function activate(context: vscode.ExtensionContext) {
   let activeEditor = vscode.window.activeTextEditor;
   let isHighlighting = false;
+  let activeDirection: "forward" | "reverse" = "forward";
   let dimBackgroundDecorationType: vscode.TextEditorDecorationType;
   let dimmedTextDecorationType: vscode.TextEditorDecorationType;
   let highlightDecorationType: vscode.TextEditorDecorationType;
@@ -55,13 +56,21 @@ export function activate(context: vscode.ExtensionContext) {
     isHighlighting = false;
   };
 
+  const showHighlights = (direction: "forward" | "reverse") => {
+    if (!activeEditor) {
+      return;
+    }
+    isHighlighting = true;
+    activeDirection = direction;
+    updateDecorations(direction);
+  };
+
   context.subscriptions.push(
-    vscode.commands.registerCommand("vscode-quick-scope.showHighlights", () => {
-      if (!activeEditor) {
-        return;
-      }
-      isHighlighting = true;
-      updateDecorations();
+    vscode.commands.registerCommand("vscode-quick-scope.showForwardHighlights", () => {
+      showHighlights("forward");
+    }),
+    vscode.commands.registerCommand("vscode-quick-scope.showReverseHighlights", () => {
+      showHighlights("reverse");
     }),
     vscode.commands.registerCommand("vscode-quick-scope.hideHighlights", () => {
       hideHighlights();
@@ -92,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (event.affectsConfiguration("vscode-quick-scope")) {
         updateDecorationTypes();
         if (isHighlighting && activeEditor) {
-          updateDecorations();
+          updateDecorations(activeDirection);
         }
       }
     },
@@ -100,7 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions
   );
 
-  function updateDecorations() {
+  function updateDecorations(direction: "forward" | "reverse") {
     if (!activeEditor) {
       return;
     }
@@ -115,34 +124,39 @@ export function activate(context: vscode.ExtensionContext) {
       cursorPosition.line,
       line.length
     );
-    const beforeText = line.slice(0, cursorColumn);
-    const beforeTextReversed = beforeText
-      .split("")
-      .reverse()
-      .join("");
-    const beforeContinuesCurrentWord =
-      cursorColumn > 0 &&
-      /\w/.test(line.charAt(cursorColumn)) &&
-      /\w/.test(line.charAt(cursorColumn - 1));
-    const beforeHighlights = getHighlights(
-      beforeTextReversed,
-      "reverse",
-      beforeContinuesCurrentWord
-    ).map(h => ({ ...h, position: cursorColumn - h.position - 1 }));
+    let beforeHighlights = [];
+    let afterHighlights = [];
 
-    const afterText = line.slice(cursorPosition.character + 1);
-    const afterContinuesCurrentWord =
-      cursorColumn + 1 < line.length &&
-      /\w/.test(line.charAt(cursorColumn)) &&
-      /\w/.test(line.charAt(cursorColumn + 1));
-    const afterHighlights = getHighlights(
-      afterText,
-      "forward",
-      afterContinuesCurrentWord
-    ).map(h => ({
-      ...h,
-      position: cursorColumn + h.position + 1
-    }));
+    if (direction === "reverse") {
+      const beforeText = line.slice(0, cursorColumn);
+      const beforeTextReversed = beforeText
+        .split("")
+        .reverse()
+        .join("");
+      const beforeContinuesCurrentWord =
+        cursorColumn > 0 &&
+        /\w/.test(line.charAt(cursorColumn)) &&
+        /\w/.test(line.charAt(cursorColumn - 1));
+      beforeHighlights = getHighlights(
+        beforeTextReversed,
+        "reverse",
+        beforeContinuesCurrentWord
+      ).map(h => ({ ...h, position: cursorColumn - h.position - 1 }));
+    } else {
+      const afterText = line.slice(cursorPosition.character + 1);
+      const afterContinuesCurrentWord =
+        cursorColumn + 1 < line.length &&
+        /\w/.test(line.charAt(cursorColumn)) &&
+        /\w/.test(line.charAt(cursorColumn + 1));
+      afterHighlights = getHighlights(
+        afterText,
+        "forward",
+        afterContinuesCurrentWord
+      ).map(h => ({
+        ...h,
+        position: cursorColumn + h.position + 1
+      }));
+    }
     // Secondary matches may already occur earlier in the search direction,
     // so Vim's f/F motion would stop before reaching them.
     const allHighlights = [...beforeHighlights, ...afterHighlights].filter(
