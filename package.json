@@ -12,6 +12,29 @@
   "activationEvents": ["*"],
   "main": "./out/extension",
   "contributes": {
+    "configuration": {
+      "title": "Quick Scope",
+      "properties": {
+        "vscode-quick-scope.highlightColor": {
+          "type": "string",
+          "default": "#ff9900",
+          "pattern": "^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$",
+          "description": "Hex color for characters that can be targeted by the current Vim find motion."
+        },
+        "vscode-quick-scope.dimmedTextColor": {
+          "type": "string",
+          "default": "#808080",
+          "pattern": "^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$",
+          "description": "Hex color for other text on the current line while jump highlights are shown."
+        },
+        "vscode-quick-scope.dimmedBackgroundColor": {
+          "type": "string",
+          "default": "#00000033",
+          "pattern": "^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$",
+          "description": "Hex color for the translucent background over the current line while jump highlights are shown. An alpha channel is supported."
+        }
+      }
+    },
     "commands": [
       {
         "command": "vscode-quick-scope.showHighlights",

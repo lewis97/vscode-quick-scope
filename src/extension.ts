@@ -2,23 +2,51 @@
 import * as vscode from "vscode";
 import getHighlights from "./matcher";
 
-const primaryDecorationType = vscode.window.createTextEditorDecorationType({
-  backgroundColor: new vscode.ThemeColor("editor.selectionBackground")
-});
-
-const secondaryDecorationType = vscode.window.createTextEditorDecorationType({
-  borderWidth: "1px",
-  borderStyle: "solid",
-  borderColor: new vscode.ThemeColor("editor.selectionBackground")
-});
-
 export function activate(context: vscode.ExtensionContext) {
   let activeEditor = vscode.window.activeTextEditor;
   let timeout: any;
+  let isHighlighting = false;
+  let dimBackgroundDecorationType: vscode.TextEditorDecorationType;
+  let dimmedTextDecorationType: vscode.TextEditorDecorationType;
+  let highlightDecorationType: vscode.TextEditorDecorationType;
+
+  const updateDecorationTypes = () => {
+    if (dimBackgroundDecorationType) {
+      dimBackgroundDecorationType.dispose();
+      dimmedTextDecorationType.dispose();
+      highlightDecorationType.dispose();
+    }
+
+    const config = vscode.workspace.getConfiguration("vscode-quick-scope");
+    const highlightColor = config.get<string>("highlightColor", "#ff9900");
+    const dimmedTextColor = config.get<string>("dimmedTextColor", "#808080");
+    const dimmedBackgroundColor = config.get<string>(
+      "dimmedBackgroundColor",
+      "#00000033"
+    );
+
+    dimBackgroundDecorationType = vscode.window.createTextEditorDecorationType({
+      backgroundColor: dimmedBackgroundColor
+    });
+    dimmedTextDecorationType = vscode.window.createTextEditorDecorationType({
+      color: dimmedTextColor
+    });
+    highlightDecorationType = vscode.window.createTextEditorDecorationType({
+      color: highlightColor
+    });
+    context.subscriptions.push(
+      dimBackgroundDecorationType,
+      dimmedTextDecorationType,
+      highlightDecorationType
+    );
+  };
+
+  updateDecorationTypes();
 
   const clearHighlights = (editor: vscode.TextEditor) => {
-    editor.setDecorations(primaryDecorationType, []);
-    editor.setDecorations(secondaryDecorationType, []);
+    editor.setDecorations(dimBackgroundDecorationType, []);
+    editor.setDecorations(dimmedTextDecorationType, []);
+    editor.setDecorations(highlightDecorationType, []);
   };
 
   const hideHighlights = () => {
@@ -29,6 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (activeEditor) {
       clearHighlights(activeEditor);
     }
+    isHighlighting = false;
   };
 
   context.subscriptions.push(
@@ -36,6 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (!activeEditor) {
         return;
       }
+      isHighlighting = true;
       if (timeout) {
         clearTimeout(timeout);
       }
@@ -65,6 +95,19 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions
   );
 
+  vscode.workspace.onDidChangeConfiguration(
+    event => {
+      if (event.affectsConfiguration("vscode-quick-scope")) {
+        updateDecorationTypes();
+        if (isHighlighting && activeEditor) {
+          updateDecorations();
+        }
+      }
+    },
+    null,
+    context.subscriptions
+  );
+
   function updateDecorations() {
     if (!activeEditor) {
       return;
@@ -74,6 +117,12 @@ export function activate(context: vscode.ExtensionContext) {
     const cursorColumn = cursorPosition.character;
     const line = getLine(activeEditor, cursorPosition);
 
+    const lineRange = new vscode.Range(
+      cursorPosition.line,
+      0,
+      cursorPosition.line,
+      line.length
+    );
     const beforeText = line.slice(0, cursorColumn);
     const beforeTextReversed = beforeText
       .split("")
@@ -88,21 +137,34 @@ export function activate(context: vscode.ExtensionContext) {
       ...h,
       position: cursorColumn + h.position + 1
     }));
+    const allHighlights = [...beforeHighlights, ...afterHighlights];
+    const targetPositions = {};
+    allHighlights.forEach(highlight => {
+      targetPositions[highlight.position] = true;
+    });
 
-    setDecorations(
-      [...beforeHighlights, ...afterHighlights].filter(
-        h => h.type === "primary"
-      ),
-      primaryDecorationType,
-      cursorPosition.line
+    activeEditor.setDecorations(dimBackgroundDecorationType, [
+      { range: lineRange }
+    ]);
+    const dimmedTextDecorations: vscode.DecorationOptions[] = [];
+    for (let i = 0; i < line.length; i++) {
+      if (!targetPositions[i]) {
+        dimmedTextDecorations.push({
+          range: new vscode.Range(
+            cursorPosition.line,
+            i,
+            cursorPosition.line,
+            i + 1
+          )
+        });
+      }
+    }
+    activeEditor.setDecorations(
+      dimmedTextDecorationType,
+      dimmedTextDecorations
     );
-    setDecorations(
-      [...beforeHighlights, ...afterHighlights].filter(
-        h => h.type === "secondary"
-      ),
-      secondaryDecorationType,
-      cursorPosition.line
-    );
+
+    setDecorations(allHighlights, highlightDecorationType, cursorPosition.line);
   }
 
   function setDecorations(highlights, decorationType, cursorLine) {
