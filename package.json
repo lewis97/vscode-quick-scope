@@ -39,6 +39,10 @@
       {
         "command": "vscode-quick-scope.showHighlights",
         "title": "Quick Scope: Show jump highlights"
+      },
+      {
+        "command": "vscode-quick-scope.hideHighlights",
+        "title": "Quick Scope: Hide jump highlights"
       }
     ],
     "configurationDefaults": {
@@ -62,6 +66,11 @@
           "before": ["T"],
           "after": ["T"],
           "commands": ["vscode-quick-scope.showHighlights"]
+        },
+        {
+          "before": ["<Esc>"],
+          "after": ["<Esc>"],
+          "commands": ["vscode-quick-scope.hideHighlights"]
         }
       ]
     }

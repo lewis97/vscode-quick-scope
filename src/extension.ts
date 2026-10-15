@@ -4,7 +4,6 @@ import getHighlights from "./matcher";
 
 export function activate(context: vscode.ExtensionContext) {
   let activeEditor = vscode.window.activeTextEditor;
-  let timeout: any;
   let isHighlighting = false;
   let dimBackgroundDecorationType: vscode.TextEditorDecorationType;
   let dimmedTextDecorationType: vscode.TextEditorDecorationType;
@@ -50,10 +49,6 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const hideHighlights = () => {
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
     if (activeEditor) {
       clearHighlights(activeEditor);
     }
@@ -66,13 +61,10 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
       isHighlighting = true;
-      if (timeout) {
-        clearTimeout(timeout);
-      }
       updateDecorations();
-      // A failed find motion does not change the selection, so always clear
-      // the highlights after Vim's key sequence timeout as a fallback.
-      timeout = setTimeout(hideHighlights, 1500);
+    }),
+    vscode.commands.registerCommand("vscode-quick-scope.hideHighlights", () => {
+      hideHighlights();
     })
   );
 
